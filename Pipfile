@@ -8,6 +8,7 @@ django = "*"
 mysqlclient = "*"
 djangorestframework = "*"
 coverage = "*"
+django-filter = "*"
 
 [dev-packages]
 isort = '*'

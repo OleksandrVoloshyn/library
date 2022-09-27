@@ -10,7 +10,7 @@ router = SimpleRouter()
 router.register('books', BookViewSet, basename='books')
 
 urlpatterns = [
-    path('admin', admin.site.urls)
+    path('admin/', admin.site.urls)
 ]
 
 urlpatterns += router.urls
