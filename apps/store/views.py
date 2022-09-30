@@ -15,7 +15,7 @@ from .serializers import BookSerializer, UserBookRelatedSerializer
 class BookViewSet(ModelViewSet):
     queryset = BookModel.objects.all().annotate(
         annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1))),
-        rating=Avg('userbookrelationmodel__rate')).order_by('id')
+        rating=Avg('userbookrelationmodel__rate')).select_related('owner').prefetch_related('readers').order_by('id')
     serializer_class = BookSerializer
     permission_classes = (IsOwnerOrAdminOrReadOnly,)
 

@@ -1,7 +1,9 @@
 import json
 
 from django.contrib.auth.models import User
+from django.db import connection
 from django.db.models import Avg, Case, Count, When
+from django.test.utils import CaptureQueriesContext
 from django.urls import reverse
 
 from rest_framework import status
@@ -23,7 +25,10 @@ class BooksApiTestCase(APITestCase):
 
     def test_get(self):
         url = reverse('books-list')
-        response = self.client.get(url)
+        with CaptureQueriesContext(connection) as queries:
+            response = self.client.get(url)
+            self.assertEqual(2, len(queries))
+
         books = BookModel.objects.all().annotate(
             annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1))),
             rating=Avg('userbookrelationmodel__rate')).order_by('id')
@@ -32,7 +37,6 @@ class BooksApiTestCase(APITestCase):
         self.assertEqual(status.HTTP_200_OK, response.status_code)
         self.assertEqual(serializer_data, response.data)
         self.assertEqual(serializer_data[0]['rating'], '4.00')
-        self.assertEqual(serializer_data[0]['likes_count'], 1)
         self.assertEqual(serializer_data[0]['annotated_likes'], 1)
 
     def test_retrieve(self):
@@ -190,6 +194,6 @@ class BookRelationTestCase(APITestCase):
         self.client.force_login(self.user)
         response = self.client.patch(url, data=json_data, content_type='application/json')
 
-        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code, response.data)
+        self.assertEqual(status.HTTP_400_BAD_REQUEST, response.status_code)
         self.assertEqual({'rate': [ErrorDetail(string='"6" is not a valid choice.', code='invalid_choice')]},
                          response.data)

@@ -8,11 +8,11 @@ from apps.store.serializers import BookSerializer
 
 class BookSerializerTestCase(TestCase):
     def test_ok(self):
-        user_1 = User.objects.create(username='user1')
-        user_2 = User.objects.create(username='user2')
-        user_3 = User.objects.create(username='user3')
+        user_1 = User.objects.create(username='user1', first_name='sasha', last_name='voloshyn')
+        user_2 = User.objects.create(username='user2', first_name='ivan', last_name='test')
+        user_3 = User.objects.create(username='user3', first_name='oleg', last_name='test2')
 
-        book_1 = BookModel.objects.create(name='book1', price=1000, author_name='author1')
+        book_1 = BookModel.objects.create(name='book1', price=1000, author_name='author1', owner=user_1)
         book_2 = BookModel.objects.create(name='book2', price=100, author_name='author2')
 
         UserBookRelationModel.objects.create(user=user_1, book=book_1, like=True, rate=5)
@@ -33,18 +33,28 @@ class BookSerializerTestCase(TestCase):
                 'name': 'book1',
                 'price': '1000.00',
                 'author_name': 'author1',
-                'likes_count': 3,
                 'annotated_likes': 3,
-                'rating': '4.67'
+                'rating': '4.67',
+                'owner_name': 'user1',
+                'readers': [
+                    {'first_name': 'sasha', 'last_name': 'voloshyn'},
+                    {'first_name': 'ivan', 'last_name': 'test'},
+                    {'first_name': 'oleg', 'last_name': 'test2'}
+                ]
             },
             {
                 'id': book_2.id,
                 'name': 'book2',
                 'price': '100.00',
                 'author_name': 'author2',
-                'likes_count': 2,
                 'annotated_likes': 2,
-                'rating': '3.50'
+                'rating': '3.50',
+                'owner_name': '',
+                'readers': [
+                    {'first_name': 'sasha', 'last_name': 'voloshyn'},
+                    {'first_name': 'ivan', 'last_name': 'test'},
+                    {'first_name': 'oleg', 'last_name': 'test2'}
+                ]
             },
         ]
         self.assertEqual(expected_data, data)
