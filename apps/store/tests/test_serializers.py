@@ -17,15 +17,16 @@ class BookSerializerTestCase(TestCase):
 
         UserBookRelationModel.objects.create(user=user_1, book=book_1, like=True, rate=5)
         UserBookRelationModel.objects.create(user=user_2, book=book_1, like=True, rate=5)
-        UserBookRelationModel.objects.create(user=user_3, book=book_1, like=True, rate=4)
+        user_book_3 = UserBookRelationModel.objects.create(user=user_3, book=book_1, like=True)
+        user_book_3.rate = 4
+        user_book_3.save()
 
         UserBookRelationModel.objects.create(user=user_1, book=book_2, like=True, rate=3)
         UserBookRelationModel.objects.create(user=user_2, book=book_2, like=True, rate=4)
         UserBookRelationModel.objects.create(user=user_3, book=book_2, like=False)
 
         books = BookModel.objects.all().annotate(
-            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1))),
-            rating=Avg('userbookrelationmodel__rate')).order_by('id')
+            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1)))).order_by('id')
         data = BookSerializer(books, many=True).data
         expected_data = [
             {

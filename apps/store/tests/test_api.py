@@ -30,8 +30,7 @@ class BooksApiTestCase(APITestCase):
             self.assertEqual(2, len(queries))
 
         books = BookModel.objects.all().annotate(
-            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1))),
-            rating=Avg('userbookrelationmodel__rate')).order_by('id')
+            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1)))).order_by('id')
         serializer_data = BookSerializer(books, many=True).data
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
@@ -49,8 +48,7 @@ class BooksApiTestCase(APITestCase):
         url = reverse('books-list')
         response = self.client.get(url, data={'price': 100})
         books = BookModel.objects.filter(id__in=(self.book_2.id, self.book_3.id)).annotate(
-            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1))),
-            rating=Avg('userbookrelationmodel__rate'))
+            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1))))
         serializer_data = BookSerializer(books, many=True).data
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
@@ -62,8 +60,7 @@ class BooksApiTestCase(APITestCase):
         response = self.client.get(url, data={'search': 'Author1'})
         BookModel.objects.filter()
         books = BookModel.objects.filter(id__in=[self.book_1.id, self.book_3.id]).annotate(
-            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1))),
-            rating=Avg('userbookrelationmodel__rate'))
+            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1))))
         serializer_data = BookSerializer(books, many=True).data
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
@@ -73,8 +70,7 @@ class BooksApiTestCase(APITestCase):
         url = reverse('books-list')
         response = self.client.get(url, data={'ordering': 'price'})
         books = BookModel.objects.filter(id__in=(self.book_2.id, self.book_3.id, self.book_1.id)).annotate(
-            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1))),
-            rating=Avg('userbookrelationmodel__rate')).order_by('price')
+            annotated_likes=Count(Case(When(userbookrelationmodel__like=True, then=1)))).order_by('price')
         serializer_data = BookSerializer(books, many=True).data
 
         self.assertEqual(status.HTTP_200_OK, response.status_code)
